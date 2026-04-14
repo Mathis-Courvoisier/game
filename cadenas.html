@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jeu du cadenas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .attempt-counter {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .code-input {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .digit {
+            width: 55px;
+            height: 55px;
+            font-size: 24px;
+            text-align: center;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .digit:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 4px rgba(13,110,253,0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background: #0d6efd;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #0b5ed7;
+        }
+
+        #replayBtn {
+            display: none;
+            background: #198754;
+        }
+
+        #replayBtn:hover {
+            background: #157347;
+        }
+
+        .history {
+            margin-top: 25px;
+        }
+
+        .attempt {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #0d6efd;
+        }
+
+        .success {
+            color: green;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 20px;
+        }
+
+        .retour{
+            color: black;
+            text-decoration: none;
+        }
+
+        .retour:hover{
+            color: #0d6efd;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="retour">◄ retour</a>
+
+    <div class="container">
+        <h1>Jeu du cadenas</h1>
+
+        <div class="attempt-counter">
+            Tentatives : <span id="attemptCount">0</span>
+        </div>
+
+        <div class="code-input">
+            <input type="text" maxlength="1" class="digit" />
+            <input type="text" maxlength="1" class="digit" />
+            <input type="text" maxlength="1" class="digit" />
+            <input type="text" maxlength="1" class="digit" />
+        </div>
+
+        <button onclick="checkGuess()" id="validateBtn">Valider</button>
+        <button onclick="restartGame()" id="replayBtn">Rejouer</button>
+
+        <div id="message"></div>
+        <div class="history" id="history"></div>
+    </div>
+
+    <script>
+        let secretCode;
+        let attempts;
+
+        const inputs = document.querySelectorAll(".digit");
+        const historyDiv = document.getElementById("history");
+        const messageDiv = document.getElementById("message");
+        const attemptCount = document.getElementById("attemptCount");
+        const replayBtn = document.getElementById("replayBtn");
+        const validateBtn = document.getElementById("validateBtn");
+
+        function generateCode() {
+            return Array.from({ length: 4 }, () =>
+                Math.floor(Math.random() * 10).toString()
+            );
+        }
+
+        function initGame() {
+            secretCode = generateCode();
+            attempts = 0;
+            attemptCount.textContent = attempts;
+            historyDiv.innerHTML = "";
+            messageDiv.innerHTML = "";
+            replayBtn.style.display = "none";
+            validateBtn.style.display = "block";
+
+            inputs.forEach(input => input.value = "");
+            inputs[0].focus();
+
+            console.log("Code secret :", secretCode.join(""));
+        }
+
+        inputs.forEach((input, index) => {
+            input.addEventListener("input", () => {
+                input.value = input.value.replace(/[^0-9]/g, "");
+
+                if (input.value && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Backspace" && !input.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        function checkGuess() {
+            const guess = Array.from(inputs).map(i => i.value);
+
+            if (guess.some(v => v === "")) {
+                alert("Entre 4 chiffres");
+                return;
+            }
+
+            attempts++;
+            attemptCount.textContent = attempts;
+
+            let wellPlaced = 0;
+            let totalCorrect = 0;
+
+            const secretUsed = [false, false, false, false];
+            const guessUsed = [false, false, false, false];
+
+            for (let i = 0; i < 4; i++) {
+                if (guess[i] === secretCode[i]) {
+                    wellPlaced++;
+                    totalCorrect++;
+                    secretUsed[i] = true;
+                    guessUsed[i] = true;
+                }
+            }
+
+            for (let i = 0; i < 4; i++) {
+                if (guessUsed[i]) continue;
+
+                for (let j = 0; j < 4; j++) {
+                    if (!secretUsed[j] && guess[i] === secretCode[j]) {
+                        totalCorrect++;
+                        secretUsed[j] = true;
+                        break;
+                    }
+                }
+            }
+
+            const bad = 4 - totalCorrect;
+            const misplaced = totalCorrect - wellPlaced;
+
+            const div = document.createElement("div");
+            div.className = "attempt";
+            div.innerHTML = `
+                <strong>${guess.join("")}</strong> →
+                🟥 ${bad} |
+                🟧 ${misplaced} |
+                🟩 ${wellPlaced}
+            `;
+
+            historyDiv.prepend(div);
+
+            if (wellPlaced === 4) {
+                messageDiv.innerHTML = `
+                    <div class="success">
+                        Trouvé en ${attempts} tentative${attempts > 1 ? "s" : ""}
+                    </div>
+                `;
+                replayBtn.style.display = "block";
+                validateBtn.style.display = "none";
+                return;
+            }
+
+            inputs.forEach(i => i.value = "");
+            inputs[0].focus();
+        }
+
+        function restartGame() {
+            initGame();
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

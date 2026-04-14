@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Motus</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .attempt-counter {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .word-input {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .letter {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            text-align: center;
+            text-transform: uppercase;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background: #0d6efd;
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #replayBtn {
+            display: none;
+            background: #198754;
+        }
+
+        .history {
+            margin-top: 25px;
+        }
+
+        .attempt {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .box {
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .red { background: #dc3545; }
+        .orange { background: #fd7e14; }
+        .green { background: #198754; }
+
+        .success {
+            text-align: center;
+            color: green;
+            font-size: 20px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        .retour{
+            color: black;
+            text-decoration: none;
+        }
+
+        .retour:hover{
+            color: #0d6efd;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<a href="index.html" class="retour">◄ retour</a>
+
+<div class="container">
+    <h1>Motus</h1>
+
+    <div class="attempt-counter">
+        Tentatives : <span id="attemptCount">0</span>
+    </div>
+
+    <div class="word-input" id="inputs"></div>
+
+    <button onclick="checkWord()" id="validateBtn">Valider</button>
+    <button onclick="restartGame()" id="replayBtn">Rejouer</button>
+
+    <div id="message"></div>
+    <div class="history" id="history"></div>
+</div>
+
+<script>
+    const words = [
+        "abeille","abandon","aborder","abriter","aboutir","ajouter","alarmer","algebre","aligner","allumer",
+        "amender","amicale","amorcer","analyse","annonce","antenne","anxieux","aplanir","appeler","appuyer",
+        "aqueduc","armoire","article","atelier","attaque","attirer","avenirs","aveugle",
+
+        "bananes","bateaux","bonjour","bonheur","barrage","berceau","besoins","bizarre","blesser","bloquer",
+        "bordure","bougies","branche","brasier","briller","brocante","bruyant","bagages","balayer","baleine",
+        "banquet","barbier","beautes","bourdon","bouture","bretzel","brevets","broyeur","buvette",
+
+        "cabaret","cadeaux","caisson","calibre","camping","canards","cascade","caverne","cendres","certain",
+        "cerveau","chagrin","chaleur","chanson","charbon","chariot","château","chatons","chemins","chevaux",
+        "chiffre","chimere","choisir","citrons","clavier","clochet","colline","couleur","courant",
+
+        "danseur","dauphin","deballe","decider","decrire","defense","delices","demande","demeure","dernier",
+        "dessert","dessins","deviner","dialogue","diamant","directs","diviser","docteur","dossier","drapeau",
+        "dresser","droites","durable","dentier","denture","dragees","dominos","douceur",
+
+        "echange","eclaira","editeur","effacer","elegant","emballe","emotion","energie","enfance","enigmes",
+        "enlever","ennemis","enquête","entendu","entiers","episode","epreuve","essayer","etendre","eternel",
+        "etoiles","etrange","etudier","evasion","eveille","evident","evoluer","exactes","examens","exemple",
+
+        "fabliau","facteur","famille","fatigue","faucons","faveurs","feuille","fiction","figurer","filiale",
+        "fleurir","fortune","fossile","fourmis","fragile","frapper","freiner","fresque","fromage",
+        "fumiste","furieux","fusions","foulard","flocons","foreurs","froncer",
+
+        "gagnant","galerie","gamelle","garages","gardien","gazelle","general","geniaux","girafes","glacier",
+        "gobelet","gourmet","gradins","graisse","grimper","grimpez","guitare","gaufres","guerres",
+        "gravure","gouache","goulots","grenier",
+
+        "habiter","habitude","harmoni","hasarde","herbier","histoire","hiverne","hommage","horizon","horloge",
+        "humains","humides","hurlant","heureux","helices","heberge","hermine","honneur","hostile","hotesse",
+        "hublots","hameaux","harpons","haubans","hilares","huilage","humours","hybride",
+
+        "iceberg","ideales","ignorer","imagina","immense","importe","inciter","indexer","indiens","informe",
+        "insigne","instant","intense","ironies","ivoires","irisant","isolant",
+        
+        "jardins","jaunies","joggeur","jouable","journal","juillet","justice","jongler","javelot",
+        "jalouse","jaseurs","joyeuse","jockeys","juriste","jambons","jumeaux","jasmins",
+
+        "langage","lanterne","larguer","lecture","legende","lentille","lettres","liberer","licence","limiter",
+        "lionnes","livreur","logique","longues","loterie","lumiere","lunette","lavande","leviers",
+        "laitier","lanceur","laurier","liseron","lourdes","lucides","lyrique",
+
+        "machine","magique","maigres","malheur","mandats","manquer","marteau","masques","matiere",
+        "meilleur","melange","memoire","mensuel","merguez","messager","mineurs","mirador","moderne","montage",
+        "montrer","moteurs","moulins","musique","mystere","murmure","matrice",
+
+        "naturel","navires","neurone","nouveau","nuances","numeros","octobre","olivier","opinion",
+        "origine","ouvrage","paniers","papillon","paroles","partage","patiner","periode","petrole",
+        "piscine","plafond","plonger","poivron","polices","pouvoir","prairie","premier","prendre","probleme",
+        "qualite","quitter","racines","rapides","reactif","reforme","regarde","rejouer","respect","rideaux",
+        "rivages","royaume","saisons","science","secrets","service","silence","sourire","surface","tableau",
+        "terrain","theatre","tirages","tournes","travaux","tribune","urgence","utilise","vacance","voyages",
+        "zodiacs","zephyrs"
+    ];
+
+    let secretWord = "";
+    let attempts = 0;
+    let discoveredLetters = Array(7).fill("");
+
+    const historyDiv = document.getElementById("history");
+    const messageDiv = document.getElementById("message");
+    const attemptCount = document.getElementById("attemptCount");
+    const replayBtn = document.getElementById("replayBtn");
+    const validateBtn = document.getElementById("validateBtn");
+    const inputsDiv = document.getElementById("inputs");
+
+    function createInputs() {
+        inputsDiv.innerHTML = "";
+
+        for (let i = 0; i < 7; i++) {
+            const input = document.createElement("input");
+            input.className = "letter";
+            input.maxLength = 1;
+
+            input.addEventListener("input", () => {
+                input.value = input.value.replace(/[^a-zA-Zàâçéèêëîïôûùüÿñæœ]/g, "").toUpperCase();
+
+                if (input.value && i < 6) {
+                    inputsDiv.children[i + 1].focus();
+                }
+            });
+
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Backspace" && !input.value && i > 0) {
+                    inputsDiv.children[i - 1].focus();
+                }
+            });
+
+            inputsDiv.appendChild(input);
+        }
+    }
+
+    function initGame() {
+        secretWord = words[Math.floor(Math.random() * words.length)].toUpperCase();
+        attempts = 0;
+        discoveredLetters = Array(7).fill("");
+
+        attemptCount.textContent = attempts;
+        historyDiv.innerHTML = "";
+        messageDiv.innerHTML = "";
+
+        replayBtn.style.display = "none";
+        validateBtn.style.display = "block";
+
+        createInputs();
+        inputsDiv.children[0].focus();
+
+        console.log("Mot secret :", secretWord);
+    }
+
+    function checkWord() {
+        const guess = Array.from(inputsDiv.children)
+            .map(input => input.value)
+            .join("");
+
+        if (guess.length !== 7) {
+            alert("Entre 7 lettres");
+            return;
+        }
+
+        attempts++;
+        attemptCount.textContent = attempts;
+
+        const secretUsed = Array(7).fill(false);
+        const guessUsed = Array(7).fill(false);
+        const result = Array(7).fill("red");
+
+        // verts
+        for (let i = 0; i < 7; i++) {
+            if (guess[i] === secretWord[i]) {
+                result[i] = "green";
+                secretUsed[i] = true;
+                guessUsed[i] = true;
+                discoveredLetters[i] = guess[i];
+            }
+        }
+
+        // oranges avec doublons bien geres
+        for (let i = 0; i < 7; i++) {
+            if (guessUsed[i]) continue;
+
+            for (let j = 0; j < 7; j++) {
+                if (!secretUsed[j] && guess[i] === secretWord[j]) {
+                    result[i] = "orange";
+                    secretUsed[j] = true;
+                    break;
+                }
+            }
+        }
+
+        const attemptDiv = document.createElement("div");
+        attemptDiv.className = "attempt";
+
+        for (let i = 0; i < 7; i++) {
+            const box = document.createElement("div");
+            box.className = `box ${result[i]}`;
+            box.textContent = guess[i];
+            attemptDiv.appendChild(box);
+        }
+
+        historyDiv.prepend(attemptDiv);
+
+        if (guess === secretWord) {
+            messageDiv.innerHTML = `
+                <div class="success">
+                    Trouve en ${attempts} tentative${attempts > 1 ? "s" : ""}
+                </div>
+            `;
+            validateBtn.style.display = "none";
+            replayBtn.style.display = "block";
+            return;
+        }
+
+        Array.from(inputsDiv.children).forEach((input, index) => {
+            input.value = "";
+            input.placeholder = discoveredLetters[index];
+        });
+        inputsDiv.children[0].focus();
+    }
+
+    function restartGame() {
+        initGame();
+    }
+
+    initGame();
+</script>
+</body>
+</html>
