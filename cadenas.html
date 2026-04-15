@@ -5,16 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Jeu du cadenas</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background: #f8f9fa;
             margin: 0;
-            padding: 40px 20px;
+            padding: 20px;
         }
 
         .container {
+            width: 100%;
             max-width: 500px;
-            margin: auto;
+            margin: 20px auto;
             background: white;
             padding: 30px;
             border-radius: 10px;
@@ -24,11 +29,12 @@
         h1 {
             text-align: center;
             margin-bottom: 20px;
+            font-size: clamp(1.6rem, 4vw, 2rem);
         }
 
         .attempt-counter {
             text-align: center;
-            font-size: 18px;
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
             margin-bottom: 20px;
         }
 
@@ -37,12 +43,13 @@
             justify-content: center;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .digit {
-            width: 55px;
-            height: 55px;
-            font-size: 24px;
+            width: clamp(45px, 12vw, 55px);
+            height: clamp(45px, 12vw, 55px);
+            font-size: clamp(20px, 5vw, 24px);
             text-align: center;
             border: 1px solid #ced4da;
             border-radius: 8px;
@@ -56,7 +63,7 @@
 
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: none;
             background: #0d6efd;
             color: white;
@@ -89,6 +96,7 @@
             background: #f8f9fa;
             border-radius: 6px;
             border-left: 4px solid #0d6efd;
+            word-break: break-word;
         }
 
         .success {
@@ -96,18 +104,41 @@
             font-weight: bold;
             text-align: center;
             margin-top: 20px;
-            font-size: 20px;
+            font-size: clamp(1.1rem, 3vw, 1.25rem);
         }
 
-        .retour{
+        .retour {
             color: black;
             text-decoration: none;
+            display: inline-block;
+            margin-bottom: 10px;
         }
 
-        .retour:hover{
+        .retour:hover {
             color: #0d6efd;
             font-weight: bold;
             text-decoration: underline;
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 20px;
+                border-radius: 8px;
+            }
+
+            .code-input {
+                gap: 8px;
+            }
+
+            button {
+                font-size: 15px;
+                padding: 12px;
+            }
         }
     </style>
 </head>

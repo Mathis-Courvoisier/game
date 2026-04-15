@@ -5,16 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Motus</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background: #f8f9fa;
             margin: 0;
-            padding: 40px 20px;
+            padding: 20px;
         }
 
         .container {
+            width: 100%;
             max-width: 600px;
-            margin: auto;
+            margin: 20px auto;
             background: white;
             padding: 30px;
             border-radius: 10px;
@@ -24,11 +29,12 @@
         h1 {
             text-align: center;
             margin-bottom: 20px;
+            font-size: clamp(1.6rem, 4vw, 2rem);
         }
 
         .attempt-counter {
             text-align: center;
-            font-size: 18px;
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
             margin-bottom: 20px;
         }
 
@@ -37,21 +43,26 @@
             justify-content: center;
             gap: 8px;
             margin-bottom: 20px;
+            flex-wrap: nowrap; /* reste sur une seule ligne */
+            overflow-x: auto; /* sécurité si mot très long */
         }
 
         .letter {
-            width: 50px;
-            height: 50px;
-            font-size: 24px;
+            width: min(50px, calc((100vw - 80px) / 6));
+            height: min(50px, calc((100vw - 80px) / 6));
+            min-width: 35px;
+            min-height: 35px;
+            font-size: clamp(18px, 4vw, 24px);
             text-align: center;
             text-transform: uppercase;
             border: 1px solid #ced4da;
             border-radius: 8px;
+            flex-shrink: 1;
         }
 
         button {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: none;
             background: #0d6efd;
             color: white;
@@ -61,9 +72,17 @@
             margin-top: 10px;
         }
 
+        button:hover {
+            background: #0b5ed7;
+        }
+
         #replayBtn {
             display: none;
             background: #198754;
+        }
+
+        #replayBtn:hover {
+            background: #157347;
         }
 
         .history {
@@ -75,16 +94,17 @@
             justify-content: center;
             gap: 6px;
             margin-bottom: 10px;
+            flex-wrap: wrap;
         }
 
         .box {
-            width: 45px;
-            height: 45px;
+            width: clamp(38px, 10vw, 45px);
+            height: clamp(38px, 10vw, 45px);
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 6px;
-            font-size: 22px;
+            font-size: clamp(18px, 4vw, 22px);
             font-weight: bold;
             color: white;
             text-transform: uppercase;
@@ -97,20 +117,50 @@
         .success {
             text-align: center;
             color: green;
-            font-size: 20px;
+            font-size: clamp(1.1rem, 3vw, 1.25rem);
             margin-top: 20px;
             font-weight: bold;
         }
 
-        .retour{
+        .retour {
             color: black;
             text-decoration: none;
+            display: inline-block;
+            margin-bottom: 10px;
         }
 
-        .retour:hover{
+        .retour:hover {
             color: #0d6efd;
             font-weight: bold;
             text-decoration: underline;
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 20px;
+                border-radius: 8px;
+            }
+
+            .word-input,
+            .attempt {
+                gap: 5px;
+            }
+
+            button {
+                padding: 12px;
+                font-size: 15px;
+            }
+
+            .letter {
+                width: calc((100vw - 60px) / 6);
+                height: calc((100vw - 60px) / 6);
+                font-size: 18px;
+            }
         }
     </style>
 </head>
